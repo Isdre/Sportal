@@ -1,0 +1,25 @@
+@model Match
+@{
+    ViewData["Title"] = "Add Match";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="YouTubeLink"></label>
+        <input asp-for="YouTubeLink" class="form-control" />
+        <span asp-validation-for="YouTubeLink" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Match</button>
+</form>

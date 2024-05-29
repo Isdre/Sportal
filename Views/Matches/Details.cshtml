@@ -1,0 +1,37 @@
+@model Sportal.Models.Match
+
+@{
+    ViewData["Title"] = "Match Details";
+}
+
+<h1>@Model.Title</h1>
+
+<iframe width="560" height="315" src="@Model.YouTubeLink" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<h2>Comments</h2>
+@if (Context.Session.GetString("UserId") != null)
+{
+    <form asp-action="AddComment" method="post">
+        <input type="hidden" name="matchId" value="@Model.Id" />
+        <textarea name="content"></textarea>
+        <button type="submit">Add Comment</button>
+    </form>
+}
+
+@foreach (var comment in Model.Comments)
+{
+    <div>
+        <p><strong>@comment.User?.Username</strong>: @comment.Content</p>
+        <p><em>@comment.DatePosted.ToString("g")</em></p>
+    </div>
+}
+
+<h2>Rate this match</h2>
+@if (Context.Session.GetString("UserId") != null)
+{
+    <form asp-action="RateMatch" method="post">
+        <input type="hidden" name="matchId" value="@Model.Id" />
+        <button type="submit" name="like" value="true">Like</button>
+        <button type="submit" name="like" value="false">Dislike</button>
+    </form>
+}

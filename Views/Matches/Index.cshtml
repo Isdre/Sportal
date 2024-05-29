@@ -1,0 +1,15 @@
+@model IEnumerable<Sportal.Models.Match>
+
+@{
+    ViewData["Title"] = "Matches";
+}
+
+<h1>Matches</h1>
+
+@foreach (var match in Model)
+{
+    <div>
+        <h2>@match.Title</h2>
+        <a href="@Url.Action("Details", new { id = match.Id })">Watch</a>
+    </div>
+}
