@@ -8,6 +8,31 @@
 
 <iframe width="560" height="315" src="@Model.YouTubeLink" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+<p>@Model.Description</p>
+
+@if (Context.Session.GetString("UserId") != null && int.Parse(Context.Session.GetString("UserId"))==Model.UserId) {
+    <h2>Delete this match</h2>
+    <form asp-action="Delete" method="post">
+        <input type="hidden" name="matchId" value="@Model.Id" />
+        <input type="hidden" name="__RequestVerificationToken" value="@Html.AntiForgeryToken()" />
+       
+        <button type="submit">Delete</button>
+    </form>
+}
+
+<h3>Likes: @Model.LikesCount</h3>
+<h3>Dislikes: @Model.DislikesCount</h3>
+
+@if (Context.Session.GetString("UserId") != null)
+{
+    <h2>Rate this match</h2>
+    <form asp-action="Rate" method="post">
+        <input type="hidden" name="matchId" value="@Model.Id" />
+        <button type="submit" name="like" value="true">Like</button>
+        <button type="submit" name="like" value="false">Dislike</button>
+    </form>
+}
+
 <h2>Comments</h2>
 @if (Context.Session.GetString("UserId") != null)
 {
@@ -26,12 +51,4 @@
     </div>
 }
 
-<h2>Rate this match</h2>
-@if (Context.Session.GetString("UserId") != null)
-{
-    <form asp-action="RateMatch" method="post">
-        <input type="hidden" name="matchId" value="@Model.Id" />
-        <button type="submit" name="like" value="true">Like</button>
-        <button type="submit" name="like" value="false">Dislike</button>
-    </form>
-}
+

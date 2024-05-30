@@ -45,6 +45,8 @@ namespace Sportal.Controllers
                     YouTubeLink = YouTubeLink,
                     DateAdded = DateTime.Today,
                     UserId = Int16.Parse(HttpContext.Session.GetString("UserId")),
+                    LikesCount = 0,
+                    DislikesCount = 0,
                 };
                 _context.Add(match);
                 await _context.SaveChangesAsync();
@@ -53,10 +55,28 @@ namespace Sportal.Controllers
             return View();
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int? matchId)
+        {
+            if (matchId == null) return NotFound();
+
+            var match = await _context.Matches
+                .FirstOrDefaultAsync(m => m.Id == matchId);
+            if (match == null) return NotFound();
+            
+            _context.Matches.Remove(match);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> Details(int id)
         {
             var match = await _context.Matches
                 .Include(m => m.Comments)
+                .ThenInclude(c => c.User)
+                .ThenInclude(r => r.Ratings)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (match == null)
             {
@@ -68,22 +88,16 @@ namespace Sportal.Controllers
         [HttpPost]
         public async Task<IActionResult> AddComment(int matchId, string content)
         {
-            if (HttpContext.Session.GetString("UserId") == null)
-            {
+            if (HttpContext.Session.GetString("UserId") == null) 
                 return RedirectToAction("Login", "Account");
-            }
 
-            var userId = HttpContext.Session.GetString("UserId");
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return BadRequest("User not found.");
-
+            var userId = int.Parse(HttpContext.Session.GetString("UserId"));
 
             var comment = new Comment
             {
                 MatchId = matchId,
                 Content = content,
-                UserId = Int16.Parse(userId),
-                User = user,
+                UserId = userId,
                 DatePosted = DateTime.Now
             };
 
@@ -94,22 +108,51 @@ namespace Sportal.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> RateMatch(int matchId, bool like)
+        public async Task<IActionResult> Rate(int matchId, bool like)
         {
-            if (HttpContext.Session.GetString("UserId") == null)
-            {
-                return RedirectToAction("Login", "Account");
+            if (HttpContext.Session.GetString("UserId") == null) return RedirectToAction("Login", "Account");
+
+            var userId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+            // Find existing rating
+            var existingRating = await _context.Ratings
+                .FirstOrDefaultAsync(r => r.MatchId == matchId && r.UserId == userId);
+
+            var match = await _context.Matches.FindAsync(matchId);
+            if (match == null) return NotFound();
+            
+            if (existingRating != null) {
+                // Update existing rating
+                if (existingRating.IsLike && !like) {
+                    match.LikesCount--;
+                    match.DislikesCount++;
+                    existingRating.IsLike = like;
+                }
+                else if (!existingRating.IsLike && like) {
+                    match.LikesCount++;
+                    match.DislikesCount--;
+                    existingRating.IsLike = like;
+                } else if (existingRating.IsLike == like) {
+                    if (like) match.LikesCount--;
+                    else match.DislikesCount--;
+                    _context.Ratings.Remove(existingRating);
+                }
+                
+            }
+            else {
+                var rating = new Rating {
+                    MatchId = matchId,
+                    UserId = userId,
+                    IsLike = like
+                };
+
+                _context.Ratings.Add(rating);
+
+                if (like)  match.LikesCount++;
+                else match.DislikesCount++;
             }
 
-            var userId = HttpContext.Session.GetString("UserId");
-            var rating = new Rating
-            {
-                MatchId = matchId,
-                UserId = Int16.Parse(userId),
-                IsLike = like
-            };
 
-            _context.Ratings.Add(rating);
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Details", new { id = matchId });

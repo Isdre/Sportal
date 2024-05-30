@@ -58,6 +58,12 @@ namespace Sportal.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("DislikesCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");

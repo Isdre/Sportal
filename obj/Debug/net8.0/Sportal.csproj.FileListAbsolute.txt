@@ -278,3 +278,4 @@ D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\Sportal.pdb
 D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\Sportal.genruntimeconfig.cache
 D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\ref\Sportal.dll
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\BCrypt.Net-Next.dll
+D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\Sportal.sourcelink.json

@@ -11,7 +11,7 @@ using Sportal.Data;
 namespace Sportal.Migrations
 {
     [DbContext(typeof(SportalDbContext))]
-    [Migration("20240529185330_InitialCreate")]
+    [Migration("20240530191414_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -60,6 +60,12 @@ namespace Sportal.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("DislikesCount")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .IsRequired()

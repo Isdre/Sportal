@@ -46,9 +46,19 @@ public class AccountController : Controller {
     }
 
     [HttpPost]
-    public async Task<IActionResult> Register(string username, string password) {
-        if (ModelState.IsValid) {
-            var user = new User{
+    public async Task<IActionResult> Register(string username, string password)
+    {
+        if (ModelState.IsValid)
+        {
+            var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(string.Empty, "Username is already taken.");
+                return View();
+            }
+
+            var user = new User
+            {
                 Username = username,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                 Role = "User"

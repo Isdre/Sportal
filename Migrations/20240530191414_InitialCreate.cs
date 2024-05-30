@@ -36,7 +36,9 @@ namespace Sportal.Migrations
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     YouTubeLink = table.Column<string>(type: "TEXT", nullable: false),
                     DateAdded = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UserId = table.Column<int>(type: "INTEGER", nullable: false)
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false),
+                    LikesCount = table.Column<int>(type: "INTEGER", nullable: false),
+                    DislikesCount = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
