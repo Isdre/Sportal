@@ -157,5 +157,7 @@ namespace Sportal.Controllers
 
             return RedirectToAction("Details", new { id = matchId });
         }
+
+ 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using BCrypt.Net;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -25,7 +26,7 @@ namespace Sportal.Migrations
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
-
+            migrationBuilder.Sql($"INSERT INTO Users(\"Username\",\"PasswordHash\",\"Role\") Values(\"admin\",\"{BCrypt.Net.BCrypt.HashPassword("admin")}\",\"Admin\")");
             migrationBuilder.CreateTable(
                 name: "Matches",
                 columns: table => new
