@@ -1,5 +1,4 @@
 ﻿using System;
-using BCrypt.Net;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -20,13 +19,14 @@ namespace Sportal.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false)
+                    Role = table.Column<string>(type: "TEXT", nullable: false),
+                    Token = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
-            migrationBuilder.Sql($"INSERT INTO Users(\"Username\",\"PasswordHash\",\"Role\") Values(\"admin\",\"{BCrypt.Net.BCrypt.HashPassword("admin")}\",\"Admin\")");
+
             migrationBuilder.CreateTable(
                 name: "Matches",
                 columns: table => new
@@ -107,7 +107,7 @@ namespace Sportal.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
+            migrationBuilder.Sql($"INSERT INTO Users(\"Username\",\"PasswordHash\",\"Role\",\"Token\") Values(\"admin\",\"{BCrypt.Net.BCrypt.HashPassword("admin")}\",\"Admin\",\"ABCDEFGH\")");
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_MatchId",
                 table: "Comments",

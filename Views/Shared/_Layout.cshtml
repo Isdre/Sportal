@@ -61,6 +61,7 @@ nav ul li a:hover {
                 {
                     <li><a asp-controller="Matches" asp-action="Create">Add Match</a></li>
                     <li><a asp-controller="Account" asp-action="Logout">Logout</a></li>
+                    @if (Context.Session.GetString("UserId") != null) {<li>Your token: @Context.Session.GetString("Token")</li>};
                 }
             </ul>
         </nav>

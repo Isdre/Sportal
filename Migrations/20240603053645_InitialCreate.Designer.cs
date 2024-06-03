@@ -11,7 +11,7 @@ using Sportal.Data;
 namespace Sportal.Migrations
 {
     [DbContext(typeof(SportalDbContext))]
-    [Migration("20240530191414_InitialCreate")]
+    [Migration("20240603053645_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -123,6 +123,10 @@ namespace Sportal.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

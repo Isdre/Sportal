@@ -1,5 +1,4 @@
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\appsettings.Development.json
-D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\appsettings.json
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\Sportal.staticwebassets.runtime.json
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\Sportal.exe
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\Sportal.deps.json
@@ -279,3 +278,4 @@ D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\Sportal.genruntimeconfig.cache
 D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\ref\Sportal.dll
 D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\BCrypt.Net-Next.dll
 D:\Hahaj\lab10\Sportal\obj\Debug\net8.0\Sportal.sourcelink.json
+D:\Hahaj\lab10\Sportal\bin\Debug\net8.0\appsettings.json
