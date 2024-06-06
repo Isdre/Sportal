@@ -1,12 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Sportal.Data;
 using Sportal.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Sportal.Controllers
 {
@@ -21,28 +20,47 @@ namespace Sportal.Controllers
             _context = context;
         }
 
-        private bool ValidateUser(string username, string token, out User user)
+        // Middleware to check token for each request
+        public async Task<bool> ValidateTokenAsync()
         {
-            user = _context.Users.FirstOrDefault(u => u.Username == username && u.Token == token);
+            // Extract headers
+            var usernameHeader = HttpContext.Request.Headers["username"].ToString();
+            var tokenHeader = HttpContext.Request.Headers["token"].ToString();
+
+            // Ensure headers are not null or empty
+            if (string.IsNullOrEmpty(usernameHeader) || string.IsNullOrEmpty(tokenHeader))
+            {
+                return false;
+            }
+
+            // Convert headers to strings and pass them as parameters
+            var user = await _context.Users
+                                    .Where(u => u.Username == usernameHeader && u.Token == tokenHeader)
+                                    .SingleOrDefaultAsync();
+
             return user != null;
         }
 
-        // GET: api/MatchesApi
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Match>>> GetMatches([FromHeader] string username, [FromHeader] string token)
-        {
-            if (!ValidateUser(username, token, out _)) return Unauthorized();
 
-            return await _context.Matches.Include(m => m.User).Include(m => m.Comments).Include(m => m.Ratings).ToListAsync();
+        [HttpGet]
+        public async Task<IActionResult> GetMatches()
+        {
+            if (!await ValidateTokenAsync())
+            {
+                return Unauthorized();
+            }
+
+            var matches = await _context.Matches.ToListAsync();
+            return Ok(matches);
         }
 
-        // GET: api/MatchesApi/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Match>> GetMatch(int id, [FromHeader] string username, [FromHeader] string token)
+        public async Task<ActionResult<Match>> GetMatch(int id)
         {
-            if (!ValidateUser(username, token, out _)) return Unauthorized();
+            if (!await ValidateTokenAsync())
+                return Unauthorized();
 
-            var match = await _context.Matches.Include(m => m.User).Include(m => m.Comments).Include(m => m.Ratings).FirstOrDefaultAsync(m => m.Id == id);
+            var match = await _context.Matches.FindAsync(id);
 
             if (match == null)
             {
@@ -52,14 +70,11 @@ namespace Sportal.Controllers
             return match;
         }
 
-        // POST: api/MatchesApi
         [HttpPost]
-        public async Task<ActionResult<Match>> PostMatch(Match match, [FromHeader] string username, [FromHeader] string token)
+        public async Task<ActionResult<Match>> PostMatch(Match match)
         {
-            if (!ValidateUser(username, token, out var user)) return Unauthorized();
-
-            match.UserId = user.Id;
-            match.DateAdded = DateTime.UtcNow;
+            if (!await ValidateTokenAsync())
+                return Unauthorized();
 
             _context.Matches.Add(match);
             await _context.SaveChangesAsync();
@@ -67,30 +82,18 @@ namespace Sportal.Controllers
             return CreatedAtAction(nameof(GetMatch), new { id = match.Id }, match);
         }
 
-        // PUT: api/MatchesApi/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMatch(int id, Match match, [FromHeader] string username, [FromHeader] string token)
+        public async Task<IActionResult> PutMatch(int id, Match match)
         {
-            if (!ValidateUser(username, token, out var user)) return Unauthorized();
+            if (!await ValidateTokenAsync())
+                return Unauthorized();
 
             if (id != match.Id)
             {
                 return BadRequest();
             }
 
-            // Ensure the user owns the match or is an admin
-            var existingMatch = await _context.Matches.FindAsync(id);
-            if (existingMatch == null || (existingMatch.UserId != user.Id && user.Role != "Admin"))
-            {
-                return Forbid();
-            }
-
-            match.DateAdded = existingMatch.DateAdded;  // Preserve the original DateAdded
-            match.UserId = existingMatch.UserId;        // Preserve the original UserId
-            match.LikesCount = existingMatch.LikesCount; // Preserve the original LikesCount
-            match.DislikesCount = existingMatch.DislikesCount; // Preserve the original DislikesCount
-
-            _context.Entry(existingMatch).CurrentValues.SetValues(match);
+            _context.Entry(match).State = EntityState.Modified;
 
             try
             {
@@ -111,22 +114,16 @@ namespace Sportal.Controllers
             return NoContent();
         }
 
-        // DELETE: api/MatchesApi/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMatch(int id, [FromHeader] string username, [FromHeader] string token)
+        public async Task<IActionResult> DeleteMatch(int id)
         {
-            if (!ValidateUser(username, token, out var user)) return Unauthorized();
+            if (!await ValidateTokenAsync())
+                return Unauthorized();
 
             var match = await _context.Matches.FindAsync(id);
             if (match == null)
             {
                 return NotFound();
-            }
-
-            // Ensure the user owns the match or is an admin
-            if (match.UserId != user.Id && user.Role != "Admin")
-            {
-                return Forbid();
             }
 
             _context.Matches.Remove(match);
