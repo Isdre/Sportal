@@ -43,7 +43,7 @@ namespace Sportal.Controllers
                     Title = Title,
                     Description = Description,
                     YouTubeLink = YouTubeLink,
-                    DateAdded = DateTime.Today,
+                    DateAdded = DateTime.Now,
                     UserId = Int16.Parse(HttpContext.Session.GetString("UserId")),
                     LikesCount = 0,
                     DislikesCount = 0,

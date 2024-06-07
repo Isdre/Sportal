@@ -20,27 +20,24 @@ namespace Sportal.Controllers
             _context = context;
         }
 
-        // Middleware to check token for each request
-        public async Task<bool> ValidateTokenAsync()
+        private async Task<bool> ValidateTokenAsync()
         {
-            // Extract headers
             var usernameHeader = HttpContext.Request.Headers["username"].ToString();
             var tokenHeader = HttpContext.Request.Headers["token"].ToString();
 
-            // Ensure headers are not null or empty
+            Console.WriteLine($"{usernameHeader} {tokenHeader}");
+
             if (string.IsNullOrEmpty(usernameHeader) || string.IsNullOrEmpty(tokenHeader))
             {
                 return false;
             }
 
-            // Convert headers to strings and pass them as parameters
             var user = await _context.Users
                                     .Where(u => u.Username == usernameHeader && u.Token == tokenHeader)
                                     .SingleOrDefaultAsync();
 
             return user != null;
         }
-
 
         [HttpGet]
         public async Task<IActionResult> GetMatches()
@@ -76,6 +73,28 @@ namespace Sportal.Controllers
             if (!await ValidateTokenAsync())
                 return Unauthorized();
 
+            // Extract username and token from headers
+            var usernameHeader = HttpContext.Request.Headers["username"].ToString();
+            var tokenHeader = HttpContext.Request.Headers["token"].ToString();
+
+            // Find the user based on username and token
+            var user = await _context.Users
+                                    .FirstOrDefaultAsync(u => u.Username == usernameHeader && u.Token == tokenHeader);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            // Assign the userId to the match
+            match.UserId = user.Id;
+
+            // Check if the model is valid
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             _context.Matches.Add(match);
             await _context.SaveChangesAsync();
 
@@ -88,7 +107,21 @@ namespace Sportal.Controllers
             if (!await ValidateTokenAsync())
                 return Unauthorized();
 
-            if (id != match.Id)
+            // Extract username and token from headers
+            var usernameHeader = HttpContext.Request.Headers["username"].ToString();
+            var tokenHeader = HttpContext.Request.Headers["token"].ToString();
+
+            // Find the user based on username and token
+            var user = await _context.Users
+                                    .FirstOrDefaultAsync(u => u.Username == usernameHeader && u.Token == tokenHeader);
+
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+
+            // Ensure the match belongs to the user
+            if (id != match.Id || match.UserId != user.Id)
             {
                 return BadRequest();
             }
